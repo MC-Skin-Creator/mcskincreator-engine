@@ -142,6 +142,30 @@ suppression d'une branche fusionnée étant la seule exception.
 **En session cloud** : la branche automatique (`claude/…`) se renomme en
 `feature/nom-court` **avant le premier commit**. Ce renommage ne se demande pas.
 
+### Les messages de commit
+
+**Conventional Commits**, et le corps tient en **5 lignes au maximum**.
+
+```
+<type>(<portée facultative>): <sujet à l'impératif, minuscule, sans point final>
+
+<corps : pourquoi, pas quoi ; 5 lignes maximum>
+```
+
+Types : `feat`, `fix`, `docs`, `test`, `build`, `ci`, `refactor`, `chore`. Une
+rupture d'API se marque `!` après le type (`feat!:`) — et monte la majeure.
+
+Deux interdits, sans exception :
+
+- **aucun `Co-Authored-By`**, pour Claude ou pour qui que ce soit d'autre ;
+- **aucun lien de session** (`Claude-Session`, `claude.ai/code/session_…`) nulle
+  part — ni dans un commit, ni dans une description de PR, ni dans un
+  commentaire d'issue. Ces liens ne mènent nulle part pour un lecteur du dépôt.
+
+Le corps sert à dire **ce que le diff ne dit pas** : pourquoi ce choix, ce qui a
+été essayé et écarté, le piège qu'on vient de payer. Ce que le code montre déjà
+n'a pas à y être répété.
+
 ## Versionnage
 
 Sémantique, et **jamais de `SNAPSHOT`** : le site peut suivre vite, le mod est
