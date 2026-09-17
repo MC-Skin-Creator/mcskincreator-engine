@@ -130,4 +130,26 @@ public final class Composition {
         }
         return img;
     }
+
+    /**
+     * A region of a buffer, enlarged n times with nearest neighbour.
+     *
+     * <p>It lives here rather than next to the PNG encoding it was written
+     * beside, because it is never called on its own: a thumbnail is always
+     * {@link #frontSprite} then a {@link #SPRITE_CROP} then this.
+     *
+     * @param w    the width in pixels of the source buffer
+     * @param crop x, y, width, height, in pixels of the source buffer
+     */
+    public static int[] scale(int[] rgba, int w, int[] crop, int n) {
+        int cw = crop[2] * n, ch = crop[3] * n;
+        int[] out = new int[cw * ch * 4];
+        for (int y = 0; y < ch; y++) {
+            for (int x = 0; x < cw; x++) {
+                int si = ((crop[1] + y / n) * w + (crop[0] + x / n)) * 4, di = (y * cw + x) * 4;
+                System.arraycopy(rgba, si, out, di, 4);
+            }
+        }
+        return out;
+    }
 }
