@@ -1,0 +1,27 @@
+MC Skin Creator — All rights reserved
+Copyright (C) 2026 clixmods
+
+This software and every file in this repository — source code, texts and data —
+are the exclusive property of clixmods.
+
+No license is granted. Without the prior written permission of the author, the
+following are notably forbidden:
+
+  - copying, reproducing or distributing all or part of the code;
+  - modifying, adapting or creating derivative works;
+  - reverse engineering, decompiling or disassembling;
+  - hosting, publishing or exploiting, commercially or not, all or part of
+    this software;
+  - using the name "MC Skin Creator" and the site logo.
+
+The source is public so that anyone can read and audit it — in particular to
+check what the Minecraft mod that embeds this library does with a player's
+session token. Being readable is not being licensed: the rights above are
+reserved all the same.
+
+The software is provided "as is", without warranty of any kind, express or
+implied. The author shall not be held liable for any damage resulting from its
+use.
+
+Unofficial project. Not approved by or associated with Mojang or Microsoft.
+"Minecraft" is a trademark of Mojang Synergies AB.

@@ -1,0 +1,4 @@
+# MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE)
+# Scripts keep the line ending their interpreter expects, whatever core.autocrlf says.
+mvnw text eol=lf
+*.cmd text eol=crlf
