@@ -1,13 +1,13 @@
-/* MC Skin Creator - Copyright (C) 2026 clixmods - Tous droits réservés (voir LICENSE) */
+/* MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE) */
 package fr.clixmods.mcsc.engine;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Empilement des calques, réglages de teinte, vue de face — portage de
- * js/core.js. Un tampon est un {@code int[]} RGBA de 64×64×4 valeurs entre 0
- * et 255, rangé comme un Uint8ClampedArray.
+ * Stacking layers, hue/saturation/lightness adjustments and the front view, a
+ * port of js/core.js. A buffer is an RGBA {@code int[]} of 64x64x4 values
+ * between 0 and 255, laid out like a Uint8ClampedArray.
  */
 public final class Composition {
 
@@ -15,10 +15,10 @@ public final class Composition {
 
     public static final int BYTES = Model.SIZE * Model.SIZE * 4;
 
-    /** ce que la composition lit d'un calque */
+    /** what compositing reads from a layer */
     public record ComposedLayer(boolean visible, double opacity, int[] buffer) { }
 
-    /** réglages d'un calque : teinte en degrés, saturation en facteur, luminosité en ajout */
+    /** a layer's adjustments: hue in degrees, saturation as a factor, lightness as an offset */
     public record Adjustments(double hue, double saturation, double lightness) {
         public static final Adjustments NEUTRAL = new Adjustments(0, 1, 0);
     }
@@ -57,7 +57,7 @@ public final class Composition {
         return out;
     }
 
-    /** teinte/saturation/luminosité d'un tampon ; le tampon lui-même s'il n'y a rien à changer */
+    /** hue/saturation/lightness over a buffer; the buffer itself when there is nothing to change */
     public static int[] adjustBuffer(int[] src, Adjustments adj) {
         if (adj == null) {
             return src;
@@ -81,7 +81,7 @@ public final class Composition {
     }
 
     /* ------------------------------------------------------------------ */
-    /* Vue de face 16×32                                                   */
+    /* The 16x32 front view                                                */
     /* ------------------------------------------------------------------ */
     private record Slot(String part, int x, int y) { }
 
@@ -89,7 +89,7 @@ public final class Composition {
             new Slot("armR", 0, 8), new Slot("legR", 4, 20), new Slot("legL", 8, 20),
             new Slot("body", 4, 8), new Slot("head", 4, 0), new Slot("armL", 12, 8));
 
-    /** les recadrages de vignette, en texels de la vue de face : x, y, largeur, hauteur */
+    /** thumbnail crops, in texels of the front view: x, y, width, height */
     public static final Map<String, int[]> SPRITE_CROP = Map.of(
             "base", new int[] {0, 0, 16, 32},
             "head", new int[] {3, 0, 10, 11},
@@ -99,14 +99,14 @@ public final class Composition {
             "legs", new int[] {2, 17, 12, 15},
             "all", new int[] {0, 0, 16, 32});
 
-    /** la vue de face (base puis calque externe) dans un tampon 16×32 */
+    /** the front view (base layer then outer layer) in a 16x32 buffer */
     public static int[] frontSprite(int[] tex, boolean slim) {
         int[] img = new int[16 * 32 * 4];
         for (String layer : List.of("base", "over")) {
             for (Slot p : LAYOUT) {
                 Model.Rect r = Model.faceRect(p.part(), "front", layer, slim);
                 int w = Model.width(p.part(), slim);
-                int pad = "armR".equals(p.part()) && slim ? 1 : 0;   // colle le bras fin au corps
+                int pad = "armR".equals(p.part()) && slim ? 1 : 0;   // pushes the slim arm against the body
                 for (int j = 0; j < r.h(); j++) {
                     for (int i = 0; i < w; i++) {
                         int si = ((r.y() + j) * Model.SIZE + (r.x() + i)) * 4;

@@ -1,26 +1,26 @@
-/* MC Skin Creator - Copyright (C) 2026 clixmods - Tous droits réservés (voir LICENSE) */
+/* MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE) */
 package fr.clixmods.mcsc.engine;
 
 /**
- * Colors — portage de CLR (js/core.js), calcul pour calcul.
+ * Colour maths, a port of CLR (js/core.js), computation for computation.
  *
- * <p>Le moteur existe en trois exemplaires : js/core.js (l'atelier), le
- * TypeScript du front (l'éditeur, en temps réel) et celui-ci (le serveur, qui
- * recompose les textures enregistrées). Ils ne tiennent ensemble que par les
- * tests de parité : TextureEngineRepoTest ici, parite.spec.ts côté front.
- * Deux détails comptent pour rendre les mêmes octets :
+ * <p>The engine exists in three copies: js/core.js (the workshop, which is the
+ * reference), the front-end TypeScript (the editor, in real time) and this one
+ * (the server and the mod). Nothing holds them together but the parity tests -
+ * TextureEngineRepoTest and parity.spec.ts, both in the MCSkinCreator
+ * repository. Two details decide whether the same bytes come out:
  * <ul>
- *   <li>{@code Math.round} de Java et de JavaScript arrondissent tous deux la
- *       demie vers +∞ ;</li>
- *   <li>un {@code Uint8ClampedArray} arrondit, lui, la demie <b>au pair</b> :
- *       c'est {@link #octet(double)}.</li>
+ *   <li>Java's and JavaScript's {@code Math.round} both round halves towards
+ *       +Infinity;</li>
+ *   <li>a {@code Uint8ClampedArray} rounds halves <b>to even</b> instead, which
+ *       is what {@link #byteOf(double)} reproduces.</li>
  * </ul>
  */
 public final class Colors {
 
     private Colors() { }
 
-    /** l'écriture dans un Uint8ClampedArray : bornée à 0..255, demie arrondie au pair */
+    /** writing into a Uint8ClampedArray: clamped to 0..255, halves rounded to even */
     public static int byteOf(double x) {
         if (Double.isNaN(x) || x <= 0) {
             return 0;
@@ -29,11 +29,11 @@ public final class Colors {
             return 255;
         }
         double f = Math.floor(x);
-        double reste = x - f;
-        if (reste < 0.5) {
+        double rest = x - f;
+        if (rest < 0.5) {
             return (int) f;
         }
-        if (reste > 0.5) {
+        if (rest > 0.5) {
             return (int) f + 1;
         }
         return ((int) f) % 2 == 0 ? (int) f : (int) f + 1;
@@ -47,7 +47,7 @@ public final class Colors {
         }
     }
 
-    /** « #rgb », « #rgba », « #rrggbb », « #rrggbbaa » ou « rgb(…) » -> [r, g, b, a] */
+    /** "#rgb", "#rgba", "#rrggbb", "#rrggbbaa" or "rgb(...)" -&gt; [r, g, b, a] */
     public static int[] parse(String c) {
         if (c == null) {
             return new int[] {0, 0, 0, 0};
@@ -94,7 +94,7 @@ public final class Colors {
         return Double.isNaN(v) ? 0 : (int) v;
     }
 
-    /** « #rrggbb » en minuscules */
+    /** "#rrggbb", lower case */
     public static String hex(String c) {
         int[] p = parse(c);
         return "#" + Integer.toHexString((1 << 24) + (p[0] << 16) + (p[1] << 8) + p[2]).substring(1);
@@ -152,7 +152,7 @@ public final class Colors {
         };
     }
 
-    /** décale la teinte (degrés), la saturation (facteur) et la luminosité (ajout) */
+    /** shifts hue (degrees), saturation (factor) and lightness (offset) */
     public static int[] hsl(int r, int g, int b, int a, double dh, double ds, double dl) {
         double[] t = rgbToHsl(r, g, b);
         double h = (t[0] + dh / 360 + 1) % 1;

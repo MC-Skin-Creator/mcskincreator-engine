@@ -1,12 +1,12 @@
-/* MC Skin Creator - Copyright (C) 2026 clixmods - Tous droits réservés (voir LICENSE) */
+/* MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE) */
 package fr.clixmods.mcsc.engine;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Le modèle Minecraft et le dépliage de sa texture 64×64 — portage de MODEL
- * (js/core.js). Repère : +x = gauche du personnage, +y = haut, +z = avant.
+ * The Minecraft model and the unwrapping of its 64x64 texture, a port of MODEL
+ * (js/core.js). Axes: +x is the character's left, +y is up, +z is forward.
  */
 public final class Model {
 
@@ -31,13 +31,13 @@ public final class Model {
             "legR", new Part(4, 12, 4, -4, new int[] {0, 16}, new int[] {0, 32}, null),
             "legL", new Part(4, 12, 4, 0, new int[] {16, 48}, new int[] {0, 48}, null));
 
-    /** largeur d'une partie : le bras du modèle fin fait 3 texels */
+    /** the width of a part: the slim model's arm is 3 texels */
     public static int width(String part, boolean slim) {
         Part p = P.get(part);
         return slim && p.arm() != null ? 3 : p.w();
     }
 
-    /** le rectangle d'une face dans la texture */
+    /** where a face lives in the texture */
     public static Rect faceRect(String part, String face, String layer, boolean slim) {
         Part p = P.get(part);
         int[] o = "over".equals(layer) ? p.over() : p.base();
@@ -49,11 +49,11 @@ public final class Model {
             case "front" -> new Rect(u + d, v + d, w, h);
             case "left" -> new Rect(u + d + w, v + d, d, h);
             case "back" -> new Rect(u + d + w + d, v + d, w, h);
-            default -> throw new IllegalArgumentException("face inconnue: " + face);
+            default -> throw new IllegalArgumentException("unknown face: " + face);
         };
     }
 
-    /** à quelle partie, quel calque et quelle face appartient un texel ; null s'il est hors du dépliage */
+    /** which part, layer and face a texel belongs to; null when it falls outside the unwrapping */
     public static Texel texelInfo(int px, int py, boolean slim) {
         for (String id : PART_IDS) {
             for (String layer : List.of("base", "over")) {
@@ -68,7 +68,7 @@ public final class Model {
         return null;
     }
 
-    /** le texel symétrique gauche/droite (miroir du personnage), ou null */
+    /** the left/right symmetric texel (the character's mirror), or null */
     public static int[] mirrorTexel(int px, int py, boolean slim) {
         Texel t = texelInfo(px, py, slim);
         if (t == null) {
@@ -84,7 +84,7 @@ public final class Model {
         String face = "left".equals(t.face()) ? "right" : "right".equals(t.face()) ? "left" : t.face();
         Rect r = faceRect(part, face, t.layer(), slim);
         int lx = t.lx();
-        // front/back/top/bottom : miroir horizontal ; left/right : conserver l'ordre
+        // front/back/top/bottom: mirror horizontally; left/right: keep the order
         if (!"left".equals(t.face()) && !"right".equals(t.face())) {
             lx = r.w() - 1 - t.lx();
         }
