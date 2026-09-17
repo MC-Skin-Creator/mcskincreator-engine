@@ -72,8 +72,20 @@
                   <version>[21,)</version>
                   <message>The engine requires Java 21 or newer.</message>
                 </requireJavaVersion>
-                <!-- The promise of this library, enforced rather than hoped for:
-                     a consumer must never inherit a transitive dependency. -->
+                <!-- The promise of this library, enforced rather than hoped
+                     for: the mod ships this jar inside its own, so a single
+                     compile-scope dependency would travel to every player.
+                     banTransitiveDependencies alone would not do it - it bans
+                     what a dependency drags in, not the dependency itself. -->
+                <bannedDependencies>
+                  <searchTransitive>true</searchTransitive>
+                  <excludes>
+                    <exclude>*:*:*:*:compile</exclude>
+                    <exclude>*:*:*:*:runtime</exclude>
+                    <exclude>*:*:*:*:provided</exclude>
+                  </excludes>
+                  <message>The engine must have no production dependency: the mod embeds this jar.</message>
+                </bannedDependencies>
                 <banTransitiveDependencies>
                   <excludes>
                     <exclude>*:*:*:*:test</exclude>

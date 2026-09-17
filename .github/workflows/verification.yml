@@ -1,0 +1,87 @@
+# MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE)
+#
+# Verification of the library.
+#
+# mcsc-engine is the layers-to-texture computation shared by the site and the
+# Minecraft mod. It has no application around it, so this workflow is short: it
+# compiles, runs the tests against the frozen parity vectors, and guards the two
+# properties the build alone would not catch - that nothing forbidden reached the
+# production code, and that every source carries its copyright header.
+#
+#   push on main or develop -> verification
+#   pull request            -> verification
+#   manual dispatch         -> verification
+#
+# Publishing is a separate workflow, triggered by a tag: see publication.yml.
+
+name: Verification
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: verification-${{ github.ref }}
+  # on main a run is not interrupted: it may be the one a release was cut from
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ------------------------------------------------------------------
+  # The library: it compiles, its tests pass, and it still depends on
+  # nothing. The enforcer bans transitive dependencies during the build;
+  # the steps after it guard what a build cannot see.
+  # ------------------------------------------------------------------
+  library:
+    name: Java library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compiled and tested
+        run: ./mvnw -B verify
+
+      - name: The production dependency tree is empty
+        # The enforcer already fails the build on a production dependency
+        # (bannedDependencies). This says it a second way, so that removing the
+        # rule from the pom does not quietly remove the guarantee with it.
+        # includeScope=runtime, not excludeScope=test: the latter errors out
+        # with "excluding everything", and an error here reads as a pass.
+        run: |
+          listed=$(./mvnw -B -q dependency:list -DincludeScope=runtime -DoutputFile=/dev/stdout \
+                   | grep -vE '^\[|^$' | tail -n +2 | tr -d ' ')
+          echo "resolved: ${listed:-<empty>}"
+          if [ "$listed" != "none" ]; then
+            echo "::error::the library gained a production dependency: $listed"
+            exit 1
+          fi
+
+      - name: Nothing forbidden reaches the production code
+        # see "Ce que la bibliothèque n'a pas le droit de contenir" in CLAUDE.md
+        run: |
+          if grep -rnE "^import .*(jackson|gson|springframework|java\.nio\.file|java\.io\.File|javax\.imageio)" src/main/java/; then
+            echo "::error::a forbidden import reached the production code"
+            exit 1
+          fi
+
+      - name: Every source carries the copyright header
+        run: |
+          missing=0
+          for f in $(find src -name '*.java'); do
+            if ! head -1 "$f" | grep -q 'Copyright (C) 2026 clixmods'; then
+              echo "::error file=$f::missing copyright header"
+              missing=1
+            fi
+          done
+          exit $missing

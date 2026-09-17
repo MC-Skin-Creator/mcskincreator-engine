@@ -67,8 +67,18 @@ Sont donc bannis du code de production :
 | `javax.imageio`, toute image | l'encodage PNG est une affaire d'appelant : `ImageIO` côté site, `NativeImage` côté mod |
 | le base64 d'un calque de dessin | c'est le format de sérialisation, pas le calcul. L'adaptateur décode |
 
-`maven-enforcer-plugin` le vérifie à chaque build (`banTransitiveDependencies`),
-et le workflow de vérification double le garde-fou par un `grep`.
+`maven-enforcer-plugin` le vérifie à chaque build, et **c'est
+`bannedDependencies` qui le tient** : il bannit les scopes `compile`, `runtime`
+et `provided` en bloc. `banTransitiveDependencies`, qui l'accompagne, ne suffit
+pas — il bannit ce qu'une dépendance traîne derrière elle, pas la dépendance
+elle-même, si bien qu'un `commons-lang3` ajouté en direct passait au vert. Le
+workflow de vérification le redit autrement (`dependency:list
+-DincludeScope=runtime`, qui doit rendre « none »), pour que retirer la règle du
+pom ne retire pas la garantie en silence.
+
+Attention au piège d'à côté : `dependency:list -DexcludeScope=test` **échoue**
+(« excluding everything »), et une étape de CI qui échoue dans un `|| true` se
+lit comme un succès.
 
 ## Commandes
 
