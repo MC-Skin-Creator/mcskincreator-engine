@@ -141,6 +141,28 @@ suppression d'une branche fusionnée étant la seule exception.
 
 **En session cloud** : la branche automatique (`claude/…`) se renomme en
 `feature/nom-court` **avant le premier commit**. Ce renommage ne se demande pas.
+La **suppression distante** d'une branche fusionnée, elle, n'y est pas possible :
+la politique de sortie accepte la poussée et refuse le `--delete`. Le
+`git branch -d` local se fait quand même, et la référence sur `origin` reste à
+retirer depuis l'interface GitHub.
+
+### `main` est la branche par défaut, et ça se paie
+
+Réglage assumé, mais il a une conséquence qui ne se devine pas : **GitHub ne
+ferme une issue sur mot-clé qu'à la fusion dans la branche par défaut**. Un
+`Closes #12` dans une PR vers `develop` ne ferme donc **rien** — la première
+livraison du dépôt a fusionné huit commits sans toucher à une seule de ses six
+issues, et c'est cette ligne-là qui manquait.
+
+Deux habitudes en découlent :
+
+- **choisir `develop` comme base explicitement** à l'ouverture d'une PR. Le
+  formulaire propose `main`, qui est presque toujours faux : on n'y fusionne que
+  pour publier ;
+- **fermer les issues à la main**, en cochant d'abord les cases de leur section
+  Acceptation qui sont réellement satisfaites — et en laissant ouverte, avec un
+  commentaire disant ce qui manque, celle qui ne l'est qu'à moitié. Une issue
+  qu'on ferme parce qu'une PR la nommait dit « fait » sur un travail partiel.
 
 ### Les messages de commit
 
