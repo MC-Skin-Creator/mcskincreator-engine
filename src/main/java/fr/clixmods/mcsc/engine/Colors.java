@@ -39,6 +39,20 @@ public final class Colors {
         return ((int) f) % 2 == 0 ? (int) f : (int) f + 1;
     }
 
+    /**
+     * JavaScript's String.slice, which clamps rather than throwing.
+     *
+     * <p>The reference engine reads "#12345" as 0x12, 0x34, 0x5 because
+     * {@code s.slice(4, 6)} hands back "5"; Java's substring would throw on the
+     * same input, and guarding the call with a length test - which is what this
+     * port used to do - answered black instead. Neither input is well formed,
+     * but parity is not a property that admits exceptions.
+     */
+    private static String slice(String s, int from, int to) {
+        int f = Math.min(from, s.length()), t = Math.min(to, s.length());
+        return f >= t ? "" : s.substring(f, t);
+    }
+
     private static int toHex(String s) {
         try {
             return Integer.parseInt(s, 16);
@@ -63,12 +77,12 @@ public final class Colors {
                 if (s.length() == 4) {
                     a = toHex("" + s.charAt(3) + s.charAt(3));
                 }
-            } else if (s.length() >= 6) {
-                r = toHex(s.substring(0, 2));
-                g = toHex(s.substring(2, 4));
-                b = toHex(s.substring(4, 6));
+            } else {
+                r = toHex(slice(s, 0, 2));
+                g = toHex(slice(s, 2, 4));
+                b = toHex(slice(s, 4, 6));
                 if (s.length() == 8) {
-                    a = toHex(s.substring(6, 8));
+                    a = toHex(slice(s, 6, 8));
                 }
             }
         } else if (s.startsWith("rgb")) {
