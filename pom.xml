@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE) -->
+<!--
+  The engine: the computation that turns a list of layers into a 64x64 skin
+  texture. It is a library, not an application - no Spring, no JSON parser, no
+  image codec, no file system. Production dependencies must stay at zero: the
+  Minecraft mod ships this jar inside its own, and every kilobyte is carried to
+  every player.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>fr.clixmods.mcsc</groupId>
+  <artifactId>mcsc-engine</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+  <name>MC Skin Creator - engine</name>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <!-- Publication target. The registry URL follows the REPOSITORY name
+       (mcskincreator-engine), not the artifact name (mcsc-engine). -->
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/MC-Skin-Creator/mcskincreator-engine</url>
+    </repository>
+  </distributionManagement>
+
+  <dependencies>
+    <!-- Test only. Nothing may be added in compile scope: see the header. -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.25.3</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>java-21</id>
+            <goals><goal>enforce</goal></goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[21,)</version>
+                  <message>The engine requires Java 21 or newer.</message>
+                </requireJavaVersion>
+                <!-- The promise of this library, enforced rather than hoped
+                     for: the mod ships this jar inside its own, so a single
+                     compile-scope dependency would travel to every player.
+                     banTransitiveDependencies alone would not do it - it bans
+                     what a dependency drags in, not the dependency itself. -->
+                <bannedDependencies>
+                  <searchTransitive>true</searchTransitive>
+                  <excludes>
+                    <exclude>*:*:*:*:compile</exclude>
+                    <exclude>*:*:*:*:runtime</exclude>
+                    <exclude>*:*:*:*:provided</exclude>
+                  </excludes>
+                  <message>The engine must have no production dependency: the mod embeds this jar.</message>
+                </bannedDependencies>
+                <banTransitiveDependencies>
+                  <excludes>
+                    <exclude>*:*:*:*:test</exclude>
+                  </excludes>
+                </banTransitiveDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <argLine>-Dfile.encoding=UTF-8</argLine>
+        </configuration>
+      </plugin>
+
+      <!-- A published artifact without sources and javadoc is unusable in an
+           IDE, and this one is meant to be read by whoever audits the mod. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals><goal>jar-no-fork</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadoc</id>
+            <goals><goal>jar</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

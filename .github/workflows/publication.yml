@@ -1,0 +1,67 @@
+# MC Skin Creator - Copyright (C) 2026 clixmods - All rights reserved (see LICENSE)
+#
+# Publication of a version, on a tag.
+#
+# Versions are semantic and pinned by consumers; there is no SNAPSHOT. The site
+# can follow quickly, but the mod is installed on players' machines and has to be
+# able to sit on one version for months - so a published version never moves.
+#
+#   tag v*  -> verify, then deploy to GitHub Packages
+#
+# This is a separate workflow from verification.yml on purpose: packages:write
+# has no business being granted on every pull request.
+
+name: Publication
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          # writes the settings.xml the deploy needs; the id matches
+          # distributionManagement in pom.xml
+          server-id: github
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_TOKEN
+
+      - name: The tag says the version the pom says
+        # a tag that disagrees with the pom publishes something nobody can find
+        # again from its number, and the mistake only shows up much later
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          pom=$(./mvnw -B -q help:evaluate -Dexpression=project.version -DforceStdout)
+          tag="${GITHUB_REF_NAME#v}"
+          echo "pom=$pom tag=$tag"
+          if [ "$pom" != "$tag" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match the pom version $pom"
+            exit 1
+          fi
+
+      - name: Verified before published
+        run: ./mvnw -B verify
+
+      - name: Deployed
+        run: ./mvnw -B -DskipTests deploy
+        env:
+          MAVEN_USERNAME: ${{ github.actor }}
+          MAVEN_TOKEN: ${{ secrets.GITHUB_TOKEN }}
