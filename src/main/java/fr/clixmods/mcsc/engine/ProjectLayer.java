@@ -10,9 +10,19 @@ package fr.clixmods.mcsc.engine;
  */
 public sealed interface ProjectLayer permits PresetLayer, PaintLayer {
 
+    /** the bounds a layer's opacity is held between, which the clients share */
+    double OPACITY_MIN = 0;
+    double OPACITY_MAX = 1;
+
     boolean visible();
 
-    /** 0 to 1 */
+    /**
+     * {@value #OPACITY_MIN} to {@value #OPACITY_MAX}.
+     *
+     * <p>A fraction, not a percentage: the sliders of an interface count in whole
+     * percent and divide on the way in. Getting that wrong is refused by the site's
+     * validator and composes an invisible or an opaque layer anywhere else.
+     */
     double opacity();
 
     /** null when the layer is left alone */
