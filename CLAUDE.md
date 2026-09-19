@@ -51,6 +51,32 @@ Elle a des conséquences qui vont contre les réflexes ordinaires :
   catalogue — 1 848 tampons, 366 empreintes, chaque emplacement de chaque
   planche. Voir « Les vecteurs figés » plus bas.
 
+## Ce qu'elle porte en plus du calcul
+
+Le calcul est le gros morceau, ce n'est pas le seul accord que le site et le mod
+doivent tenir. Trois règles de plus vivent ici, pour la même raison : chacune
+casse **en silence** quand les deux côtés divergent, et aucune ne demande de
+dépendance.
+
+- **`Atlas`** — l'ordre des emplacements d'une planche. Le site l'écrit (chaque
+  élément de la catégorie dans l'ordre du catalogue, suivi de sa variante fine
+  s'il en a une), chaque client la redécoupe en refaisant cet ordre. Décalé d'un,
+  chaque élément porte les pixels de son voisin sans que rien ne proteste ;
+- **`SkinImport`** — les tailles qu'un PNG importé peut avoir, et ce qui en
+  ressort. 64×64 et ses multiples entiers, plus l'ancien 64×32, qui n'a ni bras
+  ni jambe gauches : le dépliage passe par `Model.mirrorTexel`. Un skin « HD »
+  se réduit en prenant un texel sur *f*, jamais en moyennant — une moyenne
+  invente des couleurs que la grille n'a pas ;
+- **les bornes d'un projet** — `Project.MAX_LAYERS`, les deux d'opacité de
+  `ProjectLayer`, les trois paires de `Composition.Adjustments`. Le serveur
+  valide contre elles, les éditeurs y bornent leurs curseurs ; une borne qui
+  diffère d'un côté, c'est un projet qu'un client écrit et que l'autre refuse.
+
+Aucune ne décide d'un pixel, donc **aucune n'est couverte par la règle de
+parité** : ce sont des règles partagées, ce qui est l'autre raison pour qu'une
+ligne vive ici. Corollaire : leurs tests sont autonomes, et un consommateur ne
+les adopte qu'après publication d'une version qui les porte.
+
 ## Ce que la bibliothèque n'a pas le droit de contenir
 
 L'arbre des dépendances de production est **vide**, et ce n'est pas une

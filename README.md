@@ -54,6 +54,34 @@ The production dependency tree is empty, and `maven-enforcer-plugin` fails the
 build if it ever stops being. That is not tidiness: the mod ships this jar inside
 its own, and every kilobyte reaches every player.
 
+## What else the two clients share
+
+Composing pixels is the bulk of it, but it is not the only rule the site and the
+mod have to agree on. Three more live here, for the same reason: each one fails
+*silently* when the two drift apart, and none of them needs a dependency.
+
+- **`Atlas`** — the slot order of a category sheet. The site writes the sheet
+  (every item of the category, in catalogue order, each followed by its slim
+  variant when it has one); every client cuts it back up by redoing that order.
+  Get it wrong by one and each item wears its neighbour's pixels, with nothing
+  raising an error. `Atlas.slots(cat, items)` is that order, and
+  `Atlas.SLOT_BYTES` the size of one slot;
+- **`SkinImport`** — the sizes a `.png` may be imported at, and what comes back.
+  64×64 and any whole multiple of it, plus the pre-2013 64×32 layout, which has
+  no left arm or leg: the game mirrored the right ones, so importing one unfolds
+  it through `Model.mirrorTexel`. An "HD" skin is reduced by taking one texel in
+  *f*, never by averaging — averaging invents colours the texel grid does not
+  have;
+- **the project bounds** — `Project.MAX_LAYERS`, `ProjectLayer.OPACITY_MIN` /
+  `OPACITY_MAX`, and the three pairs on `Composition.Adjustments`. The server
+  validates a stored project against them and the editors clamp their sliders to
+  them; a bound that differs on one side is a project one client writes and the
+  other refuses.
+
+None of these decides a pixel, so none of them is covered by the parity rule
+below. They are here because they are *shared*, which is the other reason a
+line of code belongs in this library.
+
 ## Using it
 
 The artifact is `fr.clixmods.mcsc:mcsc-engine`; the repository is called
@@ -65,7 +93,7 @@ The artifact is `fr.clixmods.mcsc:mcsc-engine`; the repository is called
 <dependency>
   <groupId>fr.clixmods.mcsc</groupId>
   <artifactId>mcsc-engine</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
@@ -73,8 +101,8 @@ The artifact is `fr.clixmods.mcsc:mcsc-engine`; the repository is called
 
 ```gradle
 dependencies {
-    implementation 'fr.clixmods.mcsc:mcsc-engine:0.1.0'
-    include        'fr.clixmods.mcsc:mcsc-engine:0.1.0'
+    implementation 'fr.clixmods.mcsc:mcsc-engine:0.2.0'
+    include        'fr.clixmods.mcsc:mcsc-engine:0.2.0'
 }
 ```
 

@@ -18,9 +18,24 @@ public final class Composition {
     /** what compositing reads from a layer */
     public record ComposedLayer(boolean visible, double opacity, int[] buffer) { }
 
-    /** a layer's adjustments: hue in degrees, saturation as a factor, lightness as an offset */
+    /**
+     * A layer's adjustments: hue in degrees, saturation as a factor, lightness as an
+     * offset.
+     *
+     * <p>The bounds are the clients' shared contract rather than a limit of the
+     * calculation, which clamps what it is given: an interface counts in whole
+     * percent for the last two and divides on the way in, and a project outside these
+     * is refused by the site's validator.
+     */
     public record Adjustments(double hue, double saturation, double lightness) {
         public static final Adjustments NEUTRAL = new Adjustments(0, 1, 0);
+
+        public static final double HUE_MIN = -180;
+        public static final double HUE_MAX = 180;
+        public static final double SATURATION_MIN = 0;
+        public static final double SATURATION_MAX = 2;
+        public static final double LIGHTNESS_MIN = -1;
+        public static final double LIGHTNESS_MAX = 1;
     }
 
     public static int[] composite(List<ComposedLayer> layers) {
