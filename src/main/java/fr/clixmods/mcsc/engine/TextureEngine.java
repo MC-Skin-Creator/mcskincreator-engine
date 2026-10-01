@@ -175,10 +175,16 @@ public final class TextureEngine {
     public List<Composition.ComposedLayer> layers(Project project) {
         List<Composition.ComposedLayer> out = new ArrayList<>();
         for (ProjectLayer o : project.layers()) {
-            int[] raw = switch (o) {
-                case PaintLayer p -> p.pixels();
-                case PresetLayer p -> buildPreset(p.cat(), p.id(), p.colors(), project.slim());
-            };
+            // instanceof rather than a switch on the sealed type: patterns in a switch
+            // are Java 21, and the jar is Java 17 for the mod's Minecraft 1.20.1 build.
+            int[] raw;
+            if (o instanceof PaintLayer p) {
+                raw = p.pixels();
+            } else if (o instanceof PresetLayer p) {
+                raw = buildPreset(p.cat(), p.id(), p.colors(), project.slim());
+            } else {
+                throw new IllegalStateException("unknown layer type: " + o.getClass().getName());
+            }
             if (raw == null) {
                 continue;
             }

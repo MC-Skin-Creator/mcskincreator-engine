@@ -14,12 +14,15 @@
 
   <groupId>fr.clixmods.mcsc</groupId>
   <artifactId>mcsc-engine</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <packaging>jar</packaging>
   <name>MC Skin Creator - engine</name>
 
   <properties>
-    <maven.compiler.release>21</maven.compiler.release>
+    <!-- The bytecode the jar carries, which is the oldest JVM it runs on: Java 17,
+         because the mod ships this jar to Minecraft 1.20.1, whose launcher runs
+         Java 17. The build itself still needs Java 21 (see the enforcer below). -->
+    <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
