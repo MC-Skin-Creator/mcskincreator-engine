@@ -6,7 +6,7 @@ The computation that turns a list of layers into a 64×64 Minecraft skin texture
 shared by [mcskincreator.app](https://mcskincreator.app/) and the Minecraft mod
 so that it is not written twice.
 
-![Java 21](https://img.shields.io/badge/Java-21-orange) ![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![Java 17](https://img.shields.io/badge/Java-17-orange) ![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 
 ## What it does
 
